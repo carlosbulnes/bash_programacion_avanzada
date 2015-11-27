@@ -1,1 +1,4 @@
-# bash_programacion_avanzada
+# Proyecto para la clase de Amilcar.
+
+
+
