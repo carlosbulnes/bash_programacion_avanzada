@@ -24,8 +24,8 @@ int txt_to_pipe(char *nombre_archivo, char *comando){
 	int c;
 	int archivo = open(nombre_archivo, O_RDONLY);
 
-	printf("Open abrio el archivo con numero %d\n", archivo);
-	printf("los identificadores del pipe son %d y %d\n", p[0], p[1]);
+	//printf("Open abrio el archivo con numero %d\n", archivo);
+	//printf("los identificadores del pipe son %d y %d\n", p[0], p[1]);
 
 	if(archivo < 0){
 		printf("Oh el archivo no existe\n");
@@ -49,8 +49,9 @@ int txt_to_pipe(char *nombre_archivo, char *comando){
 		//close(p[0]);
 		wait(NULL);
 		close(archivo);
+		close(p[1]);
 
-		return p[1];
+		return p[0];
 	}
 }
 
@@ -58,7 +59,7 @@ int stdin_to_pipe(char *comando){
 	int p[2];
 	pipe(p);
 
-	printf("Los identificadores del pipe son %d y %d\n", p[0], p[1]);
+	//printf("Los identificadores del pipe son %d y %d\n", p[0], p[1]);
 	if(fork() == 0){
 		close(p[0]); // Cierro la entrada de la tuberia
 
@@ -66,11 +67,14 @@ int stdin_to_pipe(char *comando){
 		dup(p[1]); // Redirecciono la salida a la tuberia
 
 		execl(SH_DIR, SH_DIR, "-c", comando, 0);
+
 		_exit(EXIT_SUCCESS);
 	}
 	else{
 		wait(NULL);
-		return p[1]; // Regreso descriptor de archivo a la tuberia
+		close(p[1]);
+
+		return p[0]; // Regreso descriptor de archivo a la tuberia
 	}
 }
 
@@ -227,6 +231,8 @@ int pipe_to_txt(int pipe_in, char *nombre_archivo, char *comando){
 }
 
 int pipe_to_pipe(int pipe_in, char *comando){
+	printf("pipe_to_pipe\n");
+
 	int p[2];
 	pipe(p);
 
@@ -250,7 +256,8 @@ int pipe_to_pipe(int pipe_in, char *comando){
 		wait(NULL);
 
 		close(pipe_in);
+		close(p[1]);
 
-		return p[1];
+		return p[0];
 	}
 }
