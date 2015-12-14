@@ -8,17 +8,16 @@
 
 #define SH_DIR "/bin/sh"
 
-
 void stdin_stdout(char *comando[]);
-int stdin_to_file(char *nombre_archivo, char *comando[]);
+int stdin_to_file(char *nombre_archivo, char *comando[], int permisos); // La funcion recibe 1 en permisos si el simbolo es > y 2 si el simbolo es >>
 int stdin_to_pipe(char *comando[]);
 
 int file_to_stdout(char *nombre_archivo, char *comando[]);
-int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando[]);
+int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando[], int permisos); // La funcion recibe 1 en permisos si el simbolo es > y 2 si el simbolo es >>
 int file_to_pipe(char *nombre_archivo, char *comando[]);
 
 int pipe_to_stdout(int pipe_in, char *comando[]);
-int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando[]);
+int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando[], int permisos); // La funcion recibe 1 en permisos si el simbolo es > y 2 si el simbolo es >>
 int pipe_to_pipe(int pipe_in, char *comando[]);
 
 
@@ -33,10 +32,18 @@ void stdin_stdout(char *comando[]){
 	}
 }
 
-int stdin_to_file(char *nombre_archivo, char *comando[]){
+int stdin_to_file(char *nombre_archivo, char *comando[], int permisos){
 	printf("stdin_to_file\n");
 	int archivo;
-	archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+
+	if(permisos == 1) // Para cunado sea >
+		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+	else if(permisos ==2) // Para cuando sea >>
+		archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
+	else{
+		printf("Parametro no valido\n");
+		return -1;
+	}
 
 	if(archivo < 0){
 		printf("No se pudo crear %s\n", nombre_archivo);
@@ -112,12 +119,20 @@ int file_to_stdout(char *nombre_archivo, char *comando[]){
 	}
 }
 
-int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando[]){
+int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando[], int permisos){
 	printf("file_to_file\n");
 	int archivo1, archivo2;
 
 	archivo1 = open(nombre_archivo_1, O_RDONLY);
-	archivo2 = open(nombre_archivo_2, O_CREAT|O_TRUNC|O_WRONLY);
+
+	if(permisos == 1) // Para cunado sea >
+		archivo2 = open(nombre_archivo_2, O_CREAT|O_TRUNC|O_WRONLY);
+	else if(permisos ==2) // Para cuando sea >>
+		archivo2 = open(nombre_archivo_2, O_CREAT|O_WRONLY);
+	else{
+		printf("Parametro no valido\n");
+		return -1;
+	}
 
 	if(archivo1 < 0){
 		printf("No se pudo abrir %s\n", nombre_archivo_1);
@@ -208,7 +223,7 @@ int pipe_to_stdout(int pipe_in, char *comando[]){
 	}
 }
 
-int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando[]){
+int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando[], int permisos){
 	printf("pipe_to_file\n");
 
 	if(pipe_in < 3){
@@ -216,7 +231,16 @@ int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando[]){
 		return -1;
 	}
 
-	int archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+	int archivo;
+
+	if(permisos == 1) // Para cunado sea >
+		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+	else if(permisos ==2) // Para cuando sea >>
+		archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
+	else{
+		printf("Parametro no valido\n");
+		return -1;
+	}
 
 	if(fork() == 0){
 		close(0);
