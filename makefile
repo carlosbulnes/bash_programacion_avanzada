@@ -1,7 +1,7 @@
 run: compilar
 	./bash
 
-compilar: 
+compilar:
 	gcc -o bash main.c
 
 clean:
