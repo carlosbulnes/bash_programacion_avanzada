@@ -120,7 +120,7 @@ int main()
                   pipe = stdin_to_pipe(comandos[j]);
                }
             }
-            else if(i != n_simbolos-1){ // Correr las instrucciones intermedias
+            if(i != n_simbolos-1 && i != 0){ // Correr las instrucciones intermedias
                pipe = pipe_to_pipe(pipe, comandos[j]);
             }
             else{
