@@ -118,9 +118,11 @@ int main()
                }
                else if(strcmp(simbolos[i], "|") == 0){
                   pipe = stdin_to_pipe(comandos[j]);
+                  if(n_simbolos == 1)
+                     pipe_to_stdout(pipe, comandos[j+1]);
                }
             }
-            if(i != n_simbolos-1 && i != 0){ // Correr las instrucciones intermedias
+            else if(i != n_simbolos-1){ // Correr las instrucciones intermedias
                pipe = pipe_to_pipe(pipe, comandos[j]);
             }
             else{
@@ -128,7 +130,7 @@ int main()
                   pipe_to_file(pipe, comandos[j+1], comandos[j], 1);
                }
                else if(strcmp(simbolos[i], ">>") == 0){
-                  pipe_to_file(pipe, comandos[j+1], comandos[j], 2);
+                  pipe_to_file(pipe,comandos[j+1], comandos[j], 2);
                }
                else if(strcmp(simbolos[i], "|") == 0){
                   pipe_to_stdout(pipe, comandos[j+1]);
