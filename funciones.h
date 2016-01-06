@@ -33,12 +33,12 @@ void stdin_stdout(char *comando){
 }
 
 int stdin_to_file(char *nombre_archivo, char *comando, int permisos){
-	printf("stdin_to_file\n");
+	printf("stdin_to_file, permisos: %d\n", permisos);
 	int archivo;
 
 	if(permisos == 1) // Para cunado sea >
 		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
-	else if(permisos ==2) // Para cuando sea >>
+	else if(permisos == 2) // Para cuando sea >>
 		archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
 	else{
 		printf("Parametro no valido\n");

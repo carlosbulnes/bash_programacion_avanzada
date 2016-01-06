@@ -48,7 +48,7 @@ int cuenta_simbolos(char *c){
 int main()
 {
    while(1){
-      int n_simbolos = 0, n_comandos = 0, i = 0, j = 0;
+      int n_simbolos = 0, n_comandos = 0, i = 0, j = 0, pipe = 0;
 
       char s1[500], s3[500], *ptr;
       char token[4] = " \n\t", token2[10] = "|<>>>";
@@ -97,6 +97,8 @@ int main()
       while( (ptr = strtok(NULL, token2) ) != NULL ){
             comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
             strcpy(comandos[j], ptr);
+            comandos[j] = comandos[j] + 1;
+            comandos[j][strlen(ptr)] = '*';
 //            printf("comandos[%d]; %s\n", j, comandos[j]);
             j++;
       }
@@ -106,7 +108,33 @@ int main()
       if(n_simbolos == 0)
          stdin_stdout(comandos[0]);
       else{
-         printf("else\n");
+         for(i = 0, j = 0; i < n_simbolos; i++, j++){
+            if(i == 0){ // Para correr el primer par de instrucciones
+               if(strcmp(simbolos[i], ">") == 0){
+                  stdin_to_file(comandos[j+1], comandos[j], 1);
+               }
+               else if(strcmp(simbolos[i], ">>") == 0){
+                  stdin_to_file(comandos[j+1], comandos[j], 2);
+               }
+               else if(strcmp(simbolos[i], "|") == 0){
+                  pipe = stdin_to_pipe(comandos[j]);
+               }
+            }
+            else if(i != n_simbolos-1){ // Correr las instrucciones intermedias
+               pipe = pipe_to_pipe(pipe, comandos[j]);
+            }
+            else{
+               if(strcmp(simbolos[i], ">") == 0){
+                  pipe_to_file(pipe, comandos[j+1], comandos[j], 1);
+               }
+               else if(strcmp(simbolos[i], ">>") == 0){
+                  pipe_to_file(pipe, comandos[j+1], comandos[j], 2);
+               }
+               else if(strcmp(simbolos[i], "|") == 0){
+                  pipe_to_stdout(pipe, comandos[j+1]);
+               }
+            }
+         }
       }
 
    }
