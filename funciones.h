@@ -37,9 +37,11 @@ int stdin_to_file(char *nombre_archivo, char *comando, int permisos){
 	int archivo;
 
 	if(permisos == 1) // Para cunado sea >
-		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else if(permisos == 2) // Para cuando sea >>
-		archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
+		archivo = open(nombre_archivo, O_CREAT|O_WRONLY|O_APPEND,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else{
 		printf("Parametro no valido\n");
 		return -1;
@@ -54,8 +56,8 @@ int stdin_to_file(char *nombre_archivo, char *comando, int permisos){
 		close(1); // Cierra stdout
 		dup(archivo); // Asigna la salida al archivo
 
-		close(2);
-		dup(archivo);
+		//close(2);
+		//dup(archivo);
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
 		//execvp(comando[0], comando);
@@ -126,9 +128,11 @@ int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando, 
 	archivo1 = open(nombre_archivo_1, O_RDONLY);
 
 	if(permisos == 1) // Para cunado sea >
-		archivo2 = open(nombre_archivo_2, O_CREAT|O_TRUNC|O_WRONLY);
+		archivo2 = open(nombre_archivo_2, O_CREAT|O_TRUNC|O_WRONLY,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else if(permisos ==2) // Para cuando sea >>
-		archivo2 = open(nombre_archivo_2, O_CREAT|O_WRONLY);
+		archivo2 = open(nombre_archivo_2, O_CREAT|O_APPEND|O_WRONLY,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else{
 		printf("Parametro no valido\n");
 		return -1;
@@ -234,9 +238,13 @@ int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando, int permisos)
 	int archivo;
 
 	if(permisos == 1) // Para cunado sea >
-		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+		//archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
+		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else if(permisos ==2) // Para cuando sea >>
-		archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
+		archivo = open(nombre_archivo, O_CREAT|O_APPEND|O_WRONLY,
+                S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
+		//archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
 	else{
 		printf("Parametro no valido\n");
 		return -1;
