@@ -1,5 +1,3 @@
-// ls -l --color | cat > asd.txt
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,11 +11,9 @@ int cuenta_comandos(char *c){
 
    memcpy(s, c, strlen(c) + 1);
    ptr = strtok(s, token );
-//   printf("cuenta_comandos: %s\n", ptr);
    cont++;
 
    while( (ptr = strtok( NULL, token )) != NULL ){
-//      printf("cuenta_comandos: %s\n", ptr);
       cont++;
    }
 
@@ -36,7 +32,6 @@ int cuenta_simbolos(char *c){
    while( (ptr = strtok( NULL, token )) != NULL ){
       if ((strcmp(ptr, "|") == 0) || (strcmp(ptr, "<") == 0) || (strcmp(ptr, ">") == 0) ||
          (strcmp(ptr, ">>") == 0)){
-//         printf("cuenta_comandos: %s\n", ptr);
          cont++;
       }
    }
@@ -69,166 +64,160 @@ void elimina_espacios ( char *str ) {
 int main()
 {
    while(1){
-      int n_simbolos = 0, n_comandos = 0, i = 0, j = 0, pipe = 0;
+       int n_simbolos = 0, n_comandos = 0, i = 0, j = 0, pipe = 0, k=0, num_bloques=0;
 
-      char s1[500], s3[500], *ptr;
-      char token[4] = " \n\t", token2[10] = "|<>>>\n";
+       char s1[500], s3[500], *ptr, *bloques [100];
+       char token[4] = " \n\t", token2[10] = "|<>>>\n";
 
-      printf("myBash$ ");
-      fgets(s1, 100, stdin);
-      if (s1[0] == '\n') {
-          continue;
-      } else if (strcmp (s1, "exit\n") == 0) {
-          break;
-      }
+       printf("myBash$ ");
+       fgets(s1, 100, stdin);
+       if (s1[0] == '\n') {
+           continue;
+       } else if (strcmp (s1, "exit\n") == 0) {
+           break;
+       }
 
-      memcpy(s3, s1, strlen(s1)+1);
-//      printf("original string: %s, c: %s\n", s1, s3);
-//      printf("n_simbolos: %d, n_comandos: %d\n", n_simbolos, n_comandos);
+       bloques[0] = strtok ( s1, "\n;");
+       num_bloques++;
+       while ( (bloques[num_bloques] = strtok (NULL, "\n;")) != NULL ) {
+           num_bloques++;
+       }
 
-      //define_tam(s3);
-      n_comandos = cuenta_comandos(s3);
-      n_simbolos = cuenta_simbolos(s3);
+       for (k=0; k<num_bloques; k++) {
+           j=0;
+           i=0;
 
-//      printf("original string: %s, c: %s\n", s1, s3);
-      printf("n_simbolos: %d, n_comandos: %d\n", n_simbolos, n_comandos);
+           memcpy(s3, bloques[k], strlen(bloques[k])+1);
 
-//      char **array = malloc((n_simbolos+1)*sizeof(char*));
-      char **simbolos = malloc((n_simbolos+1)*sizeof(char*));
-      char **comandos = malloc((n_comandos+1)*sizeof(char*));
+           n_comandos = cuenta_comandos(s3);
+           n_simbolos = cuenta_simbolos(s3);
 
+           char **simbolos = malloc((n_simbolos+1)*sizeof(char*));
+           char **comandos = malloc((n_comandos+1)*sizeof(char*));
 
-      // Busca por simbolos
-      memcpy(s3, s1, strlen(s1)+1);
-      ptr = strtok(s3, token);    // Primera llamada => Primer token
+           // Busca por simbolos
+           memcpy(s3, bloques[k], strlen(bloques[k])+1);
+           ptr = strtok(s3, token);    // Primera llamada => Primer token
 
-      while( (ptr = strtok( NULL, token ) ) != NULL ){
-         if ((strcmp(ptr, "|") == 0) || (strcmp(ptr, "<") == 0) || (strcmp(ptr, ">") == 0) ||
-            (strcmp(ptr, ">>") == 0)){
-            simbolos[i] = malloc ((strlen(ptr)+1)*sizeof(char));
-            strcpy(simbolos[i], ptr);
-//            printf("simbolos[%d]; %s\n", i, simbolos[i]);
-            i++;
-         }
-      }
+           while( (ptr = strtok( NULL, token ) ) != NULL ){
+               if ((strcmp(ptr, "|") == 0) || (strcmp(ptr, "<") == 0) || (strcmp(ptr, ">") == 0) ||
+                       (strcmp(ptr, ">>") == 0)){
+                   simbolos[i] = malloc ((strlen(ptr)+1)*sizeof(char));
+                   strcpy(simbolos[i], ptr);
+                   i++;
+               }
+           }
 
-      // Busca por comandos
-      memcpy(s3, s1, strlen(s1)+1);
-      ptr = strtok(s3, token2);    // Primera llamada => Primer token
-      comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
-      strcpy(comandos[j], ptr);
-//      printf("comandos[%d]; %s\n", j, comandos[j]);
-      j++;
+           // Busca por comandos
+           memcpy(s3, bloques[k], strlen(bloques[k])+1);
+           ptr = strtok(s3, token2);    // Primera llamada => Primer token
+           comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
+           strcpy(comandos[j], ptr);
+           j++;
 
-      while( (ptr = strtok(NULL, token2) ) != NULL ){
-            comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
-            strcpy(comandos[j], ptr);
-            elimina_espacios (comandos[j]);
-//            printf("comandos[%d]; %s\n", j, comandos[j]);
-            j++;
-      }
+           while( (ptr = strtok(NULL, token2) ) != NULL ){
+               comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
+               strcpy(comandos[j], ptr);
+               elimina_espacios (comandos[j]);
+               j++;
+           }
 
-      // *************** Comienza parte de llamado a las funciones ********************
+           // *************** Comienza parte de llamado a las funciones ********************
 
-      //enum src_types {STDINPUT, IN_FILE, PIPE};
-      //enum dst_types {STDOUTPUT, OUT_FILE, PIPE};
+           if(n_simbolos == 0)
+               stdin_stdout(comandos[0]);
+           else{
+               i = 0;
+               j = 0;
+               while ( i != n_simbolos ) {
+                   if(i == 0){ // Para correr el primer par de instrucciones
+                       if(strcmp(simbolos[i], ">") == 0){
+                           if( n_simbolos == 2 ) { 
+                               if ( strcmp(simbolos[i+1], "<") == 0){
+                                   file_to_file (comandos[j+2],
+                                           comandos[j+1],
+                                           comandos[j],
+                                           1);
+                                   break;
+                               } 
+                           }
+                           stdin_to_file(comandos[j+1], comandos[j], 1);
+                           break;
+                       }
+                       else if(strcmp(simbolos[i], ">>") == 0){
+                           if( n_simbolos == 2 ) { 
+                               if ( strcmp(simbolos[i+1], "<") == 0){
+                                   file_to_file (comandos[j+2],
+                                           comandos[j+1],
+                                           comandos[j],
+                                           2);
+                                   break;
+                               } 
+                           }
+                           stdin_to_file(comandos[j+1], comandos[j], 2);
+                           break;
+                       }
+                       else if(strcmp(simbolos[i], "<") == 0){
+                           if( n_simbolos >= 2 ) { 
+                               if ( strcmp(simbolos[i+1], ">") == 0){
+                                   file_to_file (comandos[j+1],
+                                           comandos[j+2],
+                                           comandos[j],
+                                           1);
+                                   break;
+                               } else if ( strcmp(simbolos[i+1], ">>") == 0){
+                                   file_to_file (comandos[j+1],
+                                           comandos[j+2],
+                                           comandos[j],
+                                           2);
+                                   break;
+                               } else if ( strcmp(simbolos[i+1], "|") == 0 ){
+                                   pipe = file_to_pipe (comandos [j+1], comandos [j]);
+                                   j+=2;
+                                   i+=2;
+                               }
 
-      //src_types from = STDINPUT;
-      //dst_types from = STDOUTPUT;
+                           } else {
+                               file_to_stdout (comandos [j+1], comandos [j]);
+                               break;
+                           }
 
-      if(n_simbolos == 0)
-         stdin_stdout(comandos[0]);
-      else{
-          i = 0;
-          j = 0;
-          while ( i != n_simbolos ) {
-              if(i == 0){ // Para correr el primer par de instrucciones
-                  if(strcmp(simbolos[i], ">") == 0){
-                      if( n_simbolos == 2 ) { 
-                          if ( strcmp(simbolos[i+1], "<") == 0){
-                              file_to_file (comandos[j+2],
-                                      comandos[j+1],
-                                      comandos[j],
-                                      1);
-                              break;
-                          } 
-                      }
-                      //printf ("comando: %s, archivo: %s\n", comandos[j], comandos[j+1]);
-                      stdin_to_file(comandos[j+1], comandos[j], 1);
-                      break;
-                  }
-                  else if(strcmp(simbolos[i], ">>") == 0){
-                      if( n_simbolos == 2 ) { 
-                          if ( strcmp(simbolos[i+1], "<") == 0){
-                              file_to_file (comandos[j+2],
-                                      comandos[j+1],
-                                      comandos[j],
-                                      2);
-                              break;
-                          } 
-                      }
-                      stdin_to_file(comandos[j+1], comandos[j], 2);
-                      break;
-                  }
-                  else if(strcmp(simbolos[i], "<") == 0){
-                      if( n_simbolos >= 2 ) { 
-                          if ( strcmp(simbolos[i+1], ">") == 0){
-                              file_to_file (comandos[j+1],
-                                      comandos[j+2],
-                                      comandos[j],
-                                      1);
-                              break;
-                          } else if ( strcmp(simbolos[i+1], ">>") == 0){
-                              file_to_file (comandos[j+1],
-                                      comandos[j+2],
-                                      comandos[j],
-                                      2);
-                              break;
-                          } else if ( strcmp(simbolos[i+1], "|") == 0 ){
-                              pipe = file_to_pipe (comandos [j+1], comandos [j]);
-                              j+=2;
-                              i+=2;
-                          }
-
-                      } else {
-                          file_to_stdout (comandos [j+1], comandos [j]);
-                          break;
-                      }
-
-                  }
-                  else if(strcmp(simbolos[i], "|") == 0){
-                      pipe = stdin_to_pipe(comandos[j]);
-                      if(n_simbolos == 1)
-                          pipe_to_stdout(pipe, comandos[j+1]);
-                      j+=1;
-                      i+=1;
-                  }
-              }
-              else if(i != n_simbolos-1){ // Correr las instrucciones intermedias
-                    if ( strcmp(simbolos[i], "|") == 0 ){
-                        pipe = pipe_to_pipe(pipe, comandos[j]);
-                        j+=1;
-                        i+=1;
-                    } else {
-                        printf ("simbolo inesperado %s\n", simbolos[i]);
-                    }
-              }
-              else{
-                  if(strcmp(simbolos[i], ">") == 0){
-                      pipe_to_file(pipe, comandos[j+1], comandos[j], 1);
-                      break;
-                  }
-                  else if(strcmp(simbolos[i], ">>") == 0){
-                      pipe_to_file(pipe,comandos[j+1], comandos[j], 2);
-                      break;
-                  }
-                  else {
-                      pipe_to_stdout(pipe, comandos[j]);
-                      break;
-                  }
-              }
-          }
-      }
+                       }
+                       else if(strcmp(simbolos[i], "|") == 0){
+                           pipe = stdin_to_pipe(comandos[j]);
+                           if(n_simbolos == 1)
+                               pipe_to_stdout(pipe, comandos[j+1]);
+                           j+=1;
+                           i+=1;
+                       }
+                   }
+                   else if(i != n_simbolos-1){ // Correr las instrucciones intermedias
+                       if ( strcmp(simbolos[i], "|") == 0 ){
+                           pipe = pipe_to_pipe(pipe, comandos[j]);
+                           j+=1;
+                           i+=1;
+                       } else {
+                           printf ("simbolo inesperado %s\n", simbolos[i]);
+                           break;
+                       }
+                   }
+                   else{
+                       if(strcmp(simbolos[i], ">") == 0){
+                           pipe_to_file(pipe, comandos[j+1], comandos[j], 1);
+                           break;
+                       }
+                       else if(strcmp(simbolos[i], ">>") == 0){
+                           pipe_to_file(pipe,comandos[j+1], comandos[j], 2);
+                           break;
+                       }
+                       else {
+                           pipe_to_stdout(pipe, comandos[j]);
+                           break;
+                       }
+                   }
+               }
+           }
+       } 
    }
 
    return 0;

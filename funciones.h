@@ -24,7 +24,6 @@ int pipe_to_pipe(int pipe_in, char *comando);
 void stdin_stdout(char *comando){
 	if(fork() == 0){
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
@@ -33,7 +32,6 @@ void stdin_stdout(char *comando){
 }
 
 int stdin_to_file(char *nombre_archivo, char *comando, int permisos){
-	printf("stdin_to_file, permisos: %d\n", permisos);
 	int archivo;
 
 	if(permisos == 1) // Para cunado sea >
@@ -56,11 +54,7 @@ int stdin_to_file(char *nombre_archivo, char *comando, int permisos){
 		close(1); // Cierra stdout
 		dup(archivo); // Asigna la salida al archivo
 
-		//close(2);
-		//dup(archivo);
-
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 
 		_exit(EXIT_SUCCESS);
 	}
@@ -76,7 +70,6 @@ int stdin_to_pipe(char *comando){
 	int p[2];
 	pipe(p);
 
-	//printf("Los identificadores del pipe son %d y %d\n", p[0], p[1]);
 	if(fork() == 0){
 		close(p[0]); // Cierro la entrada de la tuberia
 
@@ -84,7 +77,6 @@ int stdin_to_pipe(char *comando){
 		dup(p[1]); // Redirecciono la salida a la tuberia
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 
 		_exit(EXIT_SUCCESS);
 	}
@@ -97,7 +89,6 @@ int stdin_to_pipe(char *comando){
 }
 
 int file_to_stdout(char *nombre_archivo, char *comando){
-	printf("file_to_stdout\n");
 	int archivo;
 	archivo = open(nombre_archivo, O_RDONLY);
 	if(archivo < 0){
@@ -110,7 +101,6 @@ int file_to_stdout(char *nombre_archivo, char *comando){
 		dup(archivo); // Remplaza la entrada por el archivo
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
@@ -122,7 +112,6 @@ int file_to_stdout(char *nombre_archivo, char *comando){
 }
 
 int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando, int permisos){
-	printf("file_to_file\n");
 	int archivo1, archivo2;
 
 	archivo1 = open(nombre_archivo_1, O_RDONLY);
@@ -155,7 +144,6 @@ int file_to_file(char *nombre_archivo_1, char *nombre_archivo_2, char *comando, 
 		dup(archivo2); // Asigno archivo 2 a la salida
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
@@ -189,11 +177,9 @@ int file_to_pipe(char *nombre_archivo, char *comando){
 		dup(p[1]); // redirecciono la salida estandar a la salida del pipe
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
-		//close(p[0]);
 		wait(NULL);
 		close(archivo);
 		close(p[1]);
@@ -203,7 +189,6 @@ int file_to_pipe(char *nombre_archivo, char *comando){
 }
 
 int pipe_to_stdout(int pipe_in, char *comando){
-	printf("pipe_to_stdout\n");
 
 	if(pipe_in < 3){
 		printf("El descriptor de la tuberia no es valido\n");
@@ -215,7 +200,6 @@ int pipe_to_stdout(int pipe_in, char *comando){
 		dup(pipe_in); // redirecciona stdin con el contenido de la tuberia
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
@@ -228,8 +212,6 @@ int pipe_to_stdout(int pipe_in, char *comando){
 }
 
 int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando, int permisos){
-	printf("pipe_to_file\n");
-
 	if(pipe_in < 3){
 		printf("Descriptor de la tuberia no valido\n");
 		return -1;
@@ -238,13 +220,11 @@ int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando, int permisos)
 	int archivo;
 
 	if(permisos == 1) // Para cunado sea >
-		//archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY);
 		archivo = open(nombre_archivo, O_CREAT|O_TRUNC|O_WRONLY,
                 S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
 	else if(permisos ==2) // Para cuando sea >>
 		archivo = open(nombre_archivo, O_CREAT|O_APPEND|O_WRONLY,
                 S_IRUSR|S_IWUSR|S_IWGRP|S_IRGRP|S_IROTH);
-		//archivo = open(nombre_archivo, O_CREAT|O_WRONLY);
 	else{
 		printf("Parametro no valido\n");
 		return -1;
@@ -258,7 +238,6 @@ int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando, int permisos)
 		dup(archivo);
 
 		execl(SH_DIR, SH_DIR, "-c", comando, (char*)0);
-		//execvp(comando[0], comando);
 		_exit(EXIT_SUCCESS);
 	}
 	else{
@@ -272,8 +251,6 @@ int pipe_to_file(int pipe_in, char *nombre_archivo, char *comando, int permisos)
 }
 
 int pipe_to_pipe(int pipe_in, char *comando){
-	printf("pipe_to_pipe\n");
-
 	int p[2];
 	pipe(p);
 
