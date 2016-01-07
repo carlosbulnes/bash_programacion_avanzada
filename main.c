@@ -44,6 +44,27 @@ int cuenta_simbolos(char *c){
    return cont;
 }
 
+void elimina_espacios ( char *str ) {
+    char *p_a = str, *p_b = str;
+    char space_cnt = 0;
+
+    while (*p_b == ' ') {
+        p_b++;
+    }
+
+    while (*p_b != '\0') {
+        *p_a = *p_b;
+        if ( *p_b == ' ') {
+            space_cnt++;
+        } else {
+            space_cnt = 0;
+        }
+        p_a++;
+        p_b++;
+    }
+
+    *(p_a - space_cnt) = '\0';
+}
 
 int main()
 {
@@ -55,6 +76,11 @@ int main()
 
       printf("myBash$ ");
       fgets(s1, 100, stdin);
+      if (s1[0] == '\n') {
+          continue;
+      } else if (strcmp (s1, "exit\n") == 0) {
+          break;
+      }
 
       memcpy(s3, s1, strlen(s1)+1);
 //      printf("original string: %s, c: %s\n", s1, s3);
@@ -97,8 +123,7 @@ int main()
       while( (ptr = strtok(NULL, token2) ) != NULL ){
             comandos[j] = malloc ((strlen(ptr)+1)*sizeof(char));
             strcpy(comandos[j], ptr);
-            comandos[j] = comandos[j] + 1;
-            comandos[j][strlen(ptr)] = '*';
+            elimina_espacios (comandos[j]);
 //            printf("comandos[%d]; %s\n", j, comandos[j]);
             j++;
       }
@@ -117,7 +142,6 @@ int main()
           i = 0;
           j = 0;
           while ( i != n_simbolos ) {
-              //for(i = 0, j = 0; i < n_simbolos; i++, j++){
               if(i == 0){ // Para correr el primer par de instrucciones
                   if(strcmp(simbolos[i], ">") == 0){
                       if( n_simbolos == 2 ) { 
@@ -129,7 +153,7 @@ int main()
                               break;
                           } 
                       }
-                      printf ("comando: %s, archivo: %s\n", comandos[j], comandos[j+1]);
+                      //printf ("comando: %s, archivo: %s\n", comandos[j], comandos[j+1]);
                       stdin_to_file(comandos[j+1], comandos[j], 1);
                       break;
                   }
@@ -149,14 +173,14 @@ int main()
                   else if(strcmp(simbolos[i], "<") == 0){
                       if( n_simbolos >= 2 ) { 
                           if ( strcmp(simbolos[i+1], ">") == 0){
-                              file_to_file (comandos[j+2],
-                                      comandos[j+1],
+                              file_to_file (comandos[j+1],
+                                      comandos[j+2],
                                       comandos[j],
                                       1);
                               break;
                           } else if ( strcmp(simbolos[i+1], ">>") == 0){
-                              file_to_file (comandos[j+2],
-                                      comandos[j+1],
+                              file_to_file (comandos[j+1],
+                                      comandos[j+2],
                                       comandos[j],
                                       2);
                               break;
