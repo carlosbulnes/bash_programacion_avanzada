@@ -211,10 +211,15 @@ int main()
                            break;
                        }
                        else {
-                           pipe_to_stdout(pipe, comandos[j]);
+                           pipe = pipe_to_pipe(pipe, comandos[j]);
                            break;
                        }
                    }
+               }
+
+               j++;
+               if (comandos[j] != NULL) {
+                   pipe_to_stdout(pipe, comandos[j]);
                }
            }
        } 
